@@ -70,8 +70,9 @@ public class SM3 {
 
     /**
      * 循环左移
+     *
      * @param sourceByte 待左移动的值
-     * @param n 左移动的为数
+     * @param n          左移动的为数
      * @return
      */
     public static byte rotateLeft(byte sourceByte, int n) {
@@ -79,8 +80,10 @@ public class SM3 {
         int temp = sourceByte & 0xFF;
         return (byte) ((temp << n) | (temp >>> (8 - n)));
     }
+
     /**
      * 循环右移
+     *
      * @param sourceByte
      * @param n
      * @return
@@ -90,8 +93,10 @@ public class SM3 {
         int temp = sourceByte & 0xFF;
         return (byte) ((temp >>> n) | (temp << (8 - n)));
     }
+
     /**
      * 循环左移
+     *
      * @param sourceBytes
      * @param n
      * @return
@@ -112,7 +117,85 @@ public class SM3 {
         return out;
     }
 
+    public static byte[] and(byte[] a, byte[] b) {
+        int maxSize = (a.length > b.length) ? a.length : b.length;
+        byte[] res = new byte[maxSize];
+        for (int count = maxSize - 1; count >= 0; --count) {
+            byte tempa = (count > a.length) ? 0 : a[count];
+            byte tempb = (count > b.length) ? 0 : b[count];
+            res[count] = (byte) (tempa & tempb & 0xff);
+        }
+
+        return res;
+    }
+
+    public static byte[] or(byte[] a, byte[] b) {
+        int maxSize = (a.length > b.length) ? a.length : b.length;
+        byte[] res = new byte[maxSize];
+        for (int count = maxSize - 1; count >= 0; --count) {
+            byte tempa = (count > a.length) ? 0 : a[count];
+            byte tempb = (count > b.length) ? 0 : b[count];
+            res[count] = (byte) ((tempa | tempb) & 0xff);
+        }
+
+        return res;
+    }
+
+    public static byte[] xor(byte[] a, byte[] b) {
+        int maxSize = (a.length > b.length) ? a.length : b.length;
+        byte[] res = new byte[maxSize];
+        for (int count = maxSize - 1; count >= 0; --count) {
+            byte tempa = (count > a.length) ? 0 : a[count];
+            byte tempb = (count > b.length) ? 0 : b[count];
+            res[count] = (byte) ((tempa ^ tempb) & 0xff);
+        }
+
+        return res;
+    }
+
+    public static byte[] not(byte[] a) {
+        byte[] c = new byte[a.length];
+        for (int cout = 0; cout < a.length; cout++) {
+            c[cout] = (byte) ~a[cout];
+        }
+        return c;
+    }
+
+    public static byte[] boolFFj(int j, byte[] x, byte[] y, byte[] z) {
+        if (j >= 0 && j < 16) {
+            byte[] temp = xor(x, y);
+            return xor(temp, z);
+        } else if (j > 15 && j < 64) {
+            byte[] xandy = and(x, y);
+            byte[] xandz = and(x, z);
+            byte[] yandz = and(y, z);
+            byte[] or1 = or(xandy, xandz);
+            return or(or1, yandz);
+        } else return null;
+    }
+
+    public static byte[] boolGGj(int j, byte[] x, byte[] y, byte[] z) {
+        if (j >= 0 && j < 16) {
+            byte[] temp = xor(x, y);
+            return xor(temp, z);
+        } else if (j > 15 && j < 64) {
+            byte[] xandy = and(x, y);
+            byte[] xandnotz = and(not(x), z);
+            return or(xandy, xandnotz);
+        } else return null;
+    }
+
+    public static byte[] place0 (byte[] x){
+        byte[] temp = xor(x,rotateLeft(x,9));
+        return xor(temp,rotateLeft(x,17));
+    }
+    public static byte[] place1 (byte[] x){
+        byte[] temp = xor(x,rotateLeft(x,15));
+        return xor(temp,rotateLeft(x,23));
+    }
 
 
-
+    public static byte[] padding(byte[] m){
+        return null;
+    }
 }
