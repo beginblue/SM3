@@ -185,17 +185,76 @@ public class SM3 {
         } else return null;
     }
 
-    public static byte[] place0 (byte[] x){
-        byte[] temp = xor(x,rotateLeft(x,9));
-        return xor(temp,rotateLeft(x,17));
+    public static byte[] place0(byte[] x) {
+        byte[] temp = xor(x, rotateLeft(x, 9));
+        return xor(temp, rotateLeft(x, 17));
     }
-    public static byte[] place1 (byte[] x){
-        byte[] temp = xor(x,rotateLeft(x,15));
-        return xor(temp,rotateLeft(x,23));
+
+    public static byte[] place1(byte[] x) {
+        byte[] temp = xor(x, rotateLeft(x, 15));
+        return xor(temp, rotateLeft(x, 23));
     }
 
 
-    public static byte[] padding(byte[] m){
+    /**
+     * 自己的padding
+     *
+     * @param in 消息
+     * @param bLen 分组数
+     * @return
+     */
+    public static byte[] padding(byte[] in, int bLen) {
+        int k = 448 - (8 * in.length + 1) % 512;
+        if (k < 0) {
+            k = 960 - (8 * in.length + 1) % 512;
+        }
+        k += 1;
+        byte[] padd = new byte[k / 8];
+        padd[0] = (byte) 0x80;
+        long n = in.length * 8 + bLen * 512;
+        byte[] out = new byte[in.length + k / 8 + 64 / 8];
         return null;
+    }
+
+    /**
+     * 人家的padding
+     *
+     * @param in
+     * @param bLen
+     * @return
+     */
+    public static byte[] padding(byte[] in, int bLen, int fuck) {
+        return null;
+//        int k = 448 - (8 * in.length + 1) % 512;
+//        if (k < 0)
+//        {
+//            k = 960 - (8 * in.length + 1) % 512;
+//        }
+//        k += 1;
+//        byte[] padd = new byte[k / 8];
+//        padd[0] = (byte) 0x80;
+//        long n = in.length * 8 + bLen * 512;
+//        byte[] out = new byte[in.length + k / 8 + 64 / 8];
+//        int pos = 0;
+//        System.arraycopy(in, 0, out, 0, in.length);
+//        pos += in.length;
+//        System.arraycopy(padd, 0, out, pos, padd.length);
+//        pos += padd.length;
+//        byte[] tmp = back(Util.longToBytes(n));
+//        //byte[] tmp = back(Convert.integerToByte((int)n,32));
+//        System.arraycopy(tmp, 0, out, pos, tmp.length);
+//
+//        System.out.println(out.length);
+//        return out;
+    }
+
+
+    private static byte[] back(byte[] in) {
+        byte[] out = new byte[in.length];
+        for (int i = 0; i < out.length; i++) {
+            out[i] = in[out.length - i - 1];
+        }
+
+        return out;
     }
 }

@@ -1,6 +1,9 @@
 package blue.sm2;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Basic convert class for sm2
  * Created by getbl on 2016/6/18.
@@ -37,6 +40,16 @@ public class Convert {
     }
 
     public static byte[] integerToByte(int num , int length){
+        byte[] res = new byte[length/8];
+        //TODO:fuck this
+        return null;
+    }
+
+    private static byte[] integerToByte(int num){
+        //7-->00000111
+        //255--->11111111
+        //256--->00000001 00000000
+        //TODO:fuck this
         return null;
     }
 }
