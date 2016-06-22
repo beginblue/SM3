@@ -10,59 +10,11 @@ import static blue.sm2.Convert.*;
  * Created by getbl on 2016/6/19.
  */
 public class SM3 {
-//    //long iv = 0x7380166f4914b2b9172442d7da8a0600a96f30bc163138aae38dee4db0fb0e4e;
-//
-//    private static int T;
-//
-//
-//    private int getT(int j) {
-//        if (j >= 0 && j <= 15) return 0x79cc5419;
-//        else if (j > 15 && j < 64) return 0x7a879d8a;
-//        else return 0;
-//    }
-//
-//    public int boolFunctionF(int j, int x, int y, int z) {
-//        if (j >= 0 && j < 16) return x ^ y ^ z;
-//        else if (j > 15 && j < 64) return (x & y) | (x & z) | (y & z);
-//        else return 0;
-//    }
-//
-//    public int boolFunctionG(int j, int x, int y, int z) {
-//        if (j >= 0 && j < 16) return x ^ y ^ z;
-//        else if (j > 15 && j < 64) return (x & y) | ((~x) & z);
-//        else return 0;
-//    }
-//
-//    public int place0(int x) {
-//        return x | (x << 9) | (x << 17);
-//    }
-//
-//    public int place1(int x) {
-//        return x | (x << 15) | (x << 23);
-//    }
-//
-//    public String  padding (int x){
-//        String message = Convert.integerToBytes(x,0);
-//        String msgLeng = Convert.integerToBytes(message.length(),64);
-//        message+="1";
-//        int time = (int) (message.length())/512;
-//        int numberOfZeros = (512*(time)-message.length()+448);
-//        for(int count  =0 ;count<numberOfZeros;count++){
-//            message+="0";
-//        }
-//        message+=msgLeng;
-//        System.out.println(message.length());
-//
-//        return  message;
-//    }
-
     static {
-        IV = Convert.HexString2Bytes("7380166f 4914b2b9 172442d7 da8a0600 a96f30bc 163138aa e38dee4d b0fb0e4e");
+        IV = Convert.HexString2Bytes("7380166f4914b2b9172442d7da8a0600a96f30bc163138aae38dee4db0fb0e4e");
     }
 
-    private static byte[] IV;
-
-    private static byte[] Tj;
+    public static byte[] IV;
 
     private static byte[] getTj(int j) {
         if (j >= 0 && j < 16) return Convert.HexString2Bytes("79cc4519");
@@ -71,52 +23,68 @@ public class SM3 {
     }
 
     public static byte[] boolFFj(int j, byte[] x, byte[] y, byte[] z) {
+//        if (j >= 0 && j < 16) {
+//            byte[] temp = xor(x, y);
+//            return xor(temp, z);
+//        } else if (j > 15 && j < 64) {
+//            byte[] xandy = and(x, y);
+//            byte[] xandz = and(x, z);
+//            byte[] yandz = and(y, z);
+//            byte[] or1 = or(xandy, xandz);
+//            return or(or1, yandz);
+//        } else return null;
+        long xl, yl, zl;
+        xl = byteToInteger(x);
+        yl = byteToInteger(y);
+        zl = byteToInteger(z);
+
         if (j >= 0 && j < 16) {
-            byte[] temp = xor(x, y);
-            return xor(temp, z);
+            //byte[] temp = xor(x, y);
+//            return xor(temp, z);
+            return integerToByte(xl ^ yl ^ zl);
         } else if (j > 15 && j < 64) {
-            byte[] xandy = and(x, y);
-            byte[] xandz = and(x, z);
-            byte[] yandz = and(y, z);
-            byte[] or1 = or(xandy, xandz);
-            return or(or1, yandz);
+//            byte[] xandy = and(x, y);
+//            byte[] xandnotz = and(not(x), z);
+//            return or(xandy, xandnotz);
+            return integerToByte((xl & yl) | (xl & zl) | (yl & zl));
         } else return null;
     }
 
     public static byte[] boolGGj(int j, byte[] x, byte[] y, byte[] z) {
+        long xl, yl, zl;
+        xl = byteToInteger(x);
+        yl = byteToInteger(y);
+        zl = byteToInteger(z);
+
         if (j >= 0 && j < 16) {
-            byte[] temp = xor(x, y);
-            return xor(temp, z);
+            //byte[] temp = xor(x, y);
+//            return xor(temp, z);
+            return integerToByte(xl ^ yl ^ zl);
         } else if (j > 15 && j < 64) {
-            byte[] xandy = and(x, y);
-            byte[] xandnotz = and(not(x), z);
-            return or(xandy, xandnotz);
+//            byte[] xandy = and(x, y);
+//            byte[] xandnotz = and(not(x), z);
+//            return or(xandy, xandnotz);
+            return integerToByte((xl & yl) | (~xl & zl));
         } else return null;
     }
 
-    public static byte[] place0(byte[] x) {
-        byte[] temp = xor(x, rotateLeft(x, 9));
-        return xor(temp, rotateLeft(x, 17));
+    public static long place0(long x) {
+//        byte[] temp = xor(x, Convert.rotateLeft(x, 9));
+//        return xor(temp, Convert.rotateLeft(x, 17));
+        return x ^ rotateLeft(x, 9) ^ rotateLeft(x, 17);
     }
 
     public static byte[] place1(byte[] x) {
-//        byte[] temp = xor(x, rotateLeft(x, 15));
-//        return xor(temp, rotateLeft(x, 23));
+        // byte[] temp = xor(x, rotateLeft(x, 15));
+        //return xor(temp, rotateLeft(x, 23));
         long xl = byteToInteger(x);
-        long x15l = byteToInteger(rotateLeft(x, 15));
-        long x23l = byteToInteger(rotateLeft(x, 23));
+        long x15l = byteToInteger(Convert.rotateLeft(x, 15));
+        long x23l = byteToInteger(Convert.rotateLeft(x, 23));
         return integerToByte(xl ^ x15l ^ x23l);
     }
 
-    /**
-     * 自己的padding
-     *
-     * @param in   消息
-     * @param bLen 分组数
-     * @return
-     */
     public static byte[] padding(byte[] in, int bLen) {
-
+        System.out.println("padding");
         //计算填充0的长度
         int k = 448 - (8 * in.length + 1) % 512;
         if (k < 0) {
@@ -145,23 +113,93 @@ public class SM3 {
         //byte[] tmp = back(Convert.integerToByte((int)n,32));
         System.arraycopy(tmp, 0, out, pos, tmp.length);
 
+        System.out.println(Convert.Bytes2HexString(out));
         //System.out.println(out.length);
         return out;
         //return null;
     }
 
-    public static byte[] CF(byte[] v, byte[] b) {
-
-        if (v.length != 32) return null;
-        else {
-            byte[][] bytes = new byte[8][4];
+    public static byte[] CF(byte[] v, long[] b) {
+        System.out.println("CF");
+        System.out.println("");
+        long[] words = new long[8];
+        long[] base = new long[8];
+        for (int i = 0; i < 8; i++) {
+            byte[] temp = new byte[4];
+            temp[0] = v[i * 4];
+            temp[1] = v[i * 4 + 1];
+            temp[2] = v[i * 4 + 2];
+            temp[3] = v[i * 4 + 3];
+            words[i] = byteToInteger(temp);
+            String str = Convert.Bytes2HexString(integerToByte(words[i]));
+            base[i] = words[i];
+            System.out.print(str + " ");
         }
-        return null;
+        System.out.println("");
+        long ss1, ss2, tt1, tt2;
+        for (int i = 0; i < 64; i++) {
+            ss1 = rotateLeft(
+                    rotateLeft(words[0], 12)
+                            + words[4]
+                            +
+                            rotateLeft(
+                                    byteToInteger(getTj(i)),
+                                    i
+                            )
+                    , 7);
+
+            ss2 = rotateLeft(words[0], 12) ^ ss1;
+            tt1 = Convert.byteToInteger(
+                    boolFFj(i,
+                            integerToByte(words[0]),
+                            integerToByte(words[1]),
+                            integerToByte(words[2])))
+                    + words[3] + ss2 + b[68 + i];
+            tt2 = Convert.byteToInteger(
+                    boolGGj(i,
+                            integerToByte(words[4]),
+                            integerToByte(words[5]),
+                            integerToByte(words[6]))
+            ) + words[7] + ss1 + b[i];
+
+            words[3] = words[2];
+            words[2] = rotateLeft(words[1], 9);
+            words[1] = words[0];
+            words[0] = tt1;
+            words[7] = words[6];
+            words[6] = rotateLeft(words[5], 19);
+            words[5] = words[4];
+            words[4] = place0(tt2);
+
+            System.out.print(i + ":");
+            for (int j = 0; j < 8; j++) {
+                String str = Convert.Bytes2HexString(integerToByte(words[j]));
+
+                System.out.print(str + " ");
+            }
+            System.out.println("");
+        }
+        String hexStr = "";
+
+        System.out.println("");
+        for (int j = 0; j < 8; j++) {
+            String str = Convert.Bytes2HexString(integerToByte(words[j] ^ base[j]));
+            System.out.print(str + " ");
+            hexStr += str;
+        }
+
+
+        return Convert.HexString2Bytes(hexStr);
+        // System.out.println(v.length);
+        //System.out.println(b.length);
+
+        //return null;
     }
 
-    public static byte[] expand(byte[] a) {
+    public static long[] expand(byte[] a) {
+        System.out.println("expand");
         //a.length === 512=
-        if (a.length != 64) {
+        if (a.length < 64) {
             byte[] temp = new byte[64];
             System.arraycopy(a, 0, temp, 64 - a.length, a.length);
             a = temp;
@@ -177,54 +215,77 @@ public class SM3 {
             System.out.print(Convert.Bytes2HexString(temp) + " ");
         }
         System.out.println("");
-        System.out.println("61626380 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000018");
+        //System.out.println("61626380 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000018");
         for (int i = 16; i < 68; i++) {
-//            byte[] wj16 = integerToByte(res[i - 16]);
-//            byte[] wj13 = integerToByte(res[i - 13]);
-//            byte[] wj6 = integerToByte(res[i - 6]);
-//            byte[] wj9 = integerToByte(res[i - 9]);
-//            byte[] wj3 = integerToByte(res[i - 3]);
+            long wj16l = res[i - 16]; //byte[] wj16 = integerToByte(res[i - 16]);
+            long wj13l = res[i - 13]; //byte[] wj13 = integerToByte(res[i - 13]);
+            long wj6l = res[i - 6]; //byte[] wj6 = integerToByte(res[i - 6]);
+            long wj9l = res[i - 9];// byte[] wj9 = integerToByte(res[i - 9]);
+            long wj3l = res[i - 3]; // byte[] wj3 = integerToByte(res[i - 3]);
 
-            //byte[] w16xor9 = xor(wj16, wj9);
-            long w16xor9l = res[i - 16] ^ res[i - 9];
-           // byte[] gw16xor9 = Convert.integerToByte(w16xor9l);
-//            System.out.println("---");
-//            System.out.println(Convert.Bytes2HexString(w16xor9));
-//            System.out.println(Convert.Bytes2HexString(gw16xor9));
-//            System.out.println("---");
-            //byte[] inP1 = xor(w16xor9, rotateLeft(wj3, 15));
-            long inP1l = w16xor9l ^ byteToInteger(rotateLeft(Convert.integerToByte(res[i - 3]), 15));
-            byte[] ginP1 = integerToByte(inP1l);
-            byte[] p1 = place1(ginP1);
-            long gp1 = byteToInteger(p1);
-            long gp1xor13 = gp1 ^ byteToInteger(rotateLeft(Convert.integerToByte(res[i - 13]), 7));
-            //byte[] p1xor13 = xor(p1, rotateLeft(wj13, 7));
-            //byte[] over = xor(p1xor13, wj6);
-            long overl = gp1xor13 ^ res[i - 6];
-            byte[] over = integerToByte(overl);
-            res[i] = overl;//byteToInteger(over);
-            System.out.print(Convert.Bytes2HexString(over) + " ");
+            long w16xor9l = wj16l ^ wj9l;//byte[] w16xor9 = xor(wj16, wj9);
+            byte[] b = Convert.rotateLeft(integerToByte(wj3l), 15);
+            String str = Convert.bytesToStr(b);
+            long inP1l = w16xor9l ^ Convert.byteToInteger(b);//byte[] inP1 = xor(w16xor9, rotateLeft(wj3, 15));
+            byte[] p1 = place1(integerToByte(inP1l));//byte[] p1 = place1(inP1);
+            String _str = Convert.bytesToStr(p1);
+            byte[] b1 = Convert.rotateLeft(integerToByte(wj13l), 7);
+            String __str = bytesToStr(b1);
+            long p1xor13l = byteToInteger(p1) ^ byteToInteger(b1);//byte[] p1xor13 = xor(p1, rotateLeft(wj13, 7));
+            long overl = p1xor13l ^ wj6l;//byte[] over = xor(p1xor13, wj6);
+            res[i] = overl;//res[i] = byteToInteger(over);
+            System.out.print(Convert.Bytes2HexString(integerToByte(overl)) + " ");
         }
         System.out.println("");
-        System.out.println("9092e200 00000000 000c0606 719c70ed 00000000 8001801f 939f7da9 00000000 2c6fa1f9 adaaef14 00000000 0001801e 9a965f89 49710048 23ce86a1 b2d12f1b e1dae338 f8061807 055d68be 86cfd481 1f447d83 d9023dbf 185898e0 e0061807 050df55c cde0104c a5b9c955 a7df0184 6e46cd08 e3babdf8 70caa422 0353af50 a92dbca1 5f33cfd2 e16f6e89 f70fe941 ca5462dc 85a90152 76af6296 c922bdb2 68378cf5 97585344 09008723 86faee74 2ab908b0 4a64bc50 864e6e08 f07e6590 325c8f78 accb8011 e11db9dd b99c0545 ");
+        //System.out.println("9092e200 00000000 000c0606 719c70ed 00000000 8001801f 939f7da9 00000000 2c6fa1f9 adaaef14 00000000 0001801e 9a965f89 49710048 23ce86a1 b2d12f1b e1dae338 f8061807 055d68be 86cfd481 1f447d83 d9023dbf 185898e0 e0061807 050df55c cde0104c a5b9c955 a7df0184 6e46cd08 e3babdf8 70caa422 0353af50 a92dbca1 5f33cfd2 e16f6e89 f70fe941 ca5462dc 85a90152 76af6296 c922bdb2 68378cf5 97585344 09008723 86faee74 2ab908b0 4a64bc50 864e6e08 f07e6590 325c8f78 accb8011 e11db9dd b99c0545 ");
 
         for (int i = 0; i < 64; i++) {
-            byte[] ress = xor(integerToByte(res[i]), integerToByte(res[i + 4]));
-            res[i + 68] = byteToInteger(ress);
-            System.out.print(Convert.Bytes2HexString(ress) + " ");
+            //byte[] ress = xor(integerToByte(res[i]), integerToByte(res[i + 4]));
+            res[i + 68] = res[i] ^ res[i + 4];
+            //res[i + 68] = byteToInteger(ress);
+            System.out.print(Convert.Bytes2HexString(Convert.integerToByte(res[i + 68])) + " ");
         }
         System.out.println("");
-        System.out.println("61626380 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000018 9092e200 00000000 000c0606 719c70f5 9092e200 8001801f 93937baf 719c70ed 2c6fa1f9 2dab6f0b 939f7da9 0001801e b6f9fe70 e4dbef5c 23ce86a1 b2d0af05 7b4cbcb1 b177184f 2693ee1f 341efb9a fe9e9ebb 210425b8 1d05f05e 66c9cc86 1a4988df 14e22df3 bde151b5 47d91983 6b4b3854 2e5aadb4 d5736d77 a48caed4 c76b71a9 bc89722a 91a5caab f45c4611 6379de7d da9ace80 97c00c1f 3e2d54f3 a263ee29 12f15216 7fafe5b5 4fd853c6 428e8445 dd3cef14 8f4ee92b 76848be4 18e587c8 e6af3c41 6753d7d5 49e260d5 ");
+        //System.out.println("61626380 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000018 9092e200 00000000 000c0606 719c70f5 9092e200 8001801f 93937baf 719c70ed 2c6fa1f9 2dab6f0b 939f7da9 0001801e b6f9fe70 e4dbef5c 23ce86a1 b2d0af05 7b4cbcb1 b177184f 2693ee1f 341efb9a fe9e9ebb 210425b8 1d05f05e 66c9cc86 1a4988df 14e22df3 bde151b5 47d91983 6b4b3854 2e5aadb4 d5736d77 a48caed4 c76b71a9 bc89722a 91a5caab f45c4611 6379de7d da9ace80 97c00c1f 3e2d54f3 a263ee29 12f15216 7fafe5b5 4fd853c6 428e8445 dd3cef14 8f4ee92b 76848be4 18e587c8 e6af3c41 6753d7d5 49e260d5 ");
 
-        return null;
+        return res;
     }
 
-    public static byte[] back(byte[] in) {
-        byte[] out = new byte[in.length];
-        for (int i = 0; i < out.length; i++) {
-            out[i] = in[out.length - i - 1];
+
+    public static String hash(byte[] input) {
+        System.out.println("hash");
+        int part = input.length / 64 + 1;
+        byte[][] pool = new byte[part][];
+        List<byte[]> bytes = new ArrayList<>();
+
+        for (int i = 0; i < part; i++) {
+            //pool[i]=input
+//            System.arraycopy(input, i * 64, pool[i], 0, input.length - i * 64 > 64 ? 64 : input.length - i * 64);
+            int count = input.length - i * 64;
+            byte[] temp;
+            if (count > 64) {
+                temp = new byte[64];
+                System.arraycopy(input, i * 64, temp, 0, 64);
+                bytes.add(temp);
+            } else {
+                temp = new byte[count];
+                System.arraycopy(input, i * 64, temp, 0, count);
+                bytes.add(temp);
+            }
+        }
+        pool = bytes.toArray(pool);
+        System.out.println(Convert.Bytes2HexString(pool[part - 1]));
+        pool[part - 1] = padding(pool[part - 1], part-1);
+
+        byte[] v = IV;
+
+        for (int i = 0; i < part; i++) {
+            v = CF(v, expand(pool[i]));
         }
 
-        return out;
+        return Convert.Bytes2HexString(v);
+
     }
+
+
 }

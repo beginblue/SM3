@@ -67,9 +67,9 @@ public class Convert {
                 break;
             }
             //System.out.println("num=" + num);
-        } while (num != 0);
+        } while (num != 0 && count >= 0);
 
-        byte[] res = new byte[32 - count];
+        //byte[] res = new byte[32 - count];
 
         return bytes;
     }
@@ -93,32 +93,6 @@ public class Convert {
         return res;
     }
 
-    /**
-     * 循环左移
-     *
-     * @param sourceByte 待左移动的值
-     * @param n          左移动的为数
-     * @return
-     */
-    public static byte rotateLeft(byte sourceByte, int n) {
-        // 去除高位的1
-        int temp = sourceByte & 0xFF;
-        return (byte) ((temp << n) | (temp >>> (8 - n)));
-    }
-
-    /**
-     * 循环右移
-     *
-     * @param sourceByte
-     * @param n
-     * @return
-     */
-    public static byte rotateRight(byte sourceByte, int n) {
-        // 去除高位的1
-        int temp = sourceByte & 0xFF;
-        return (byte) ((temp >>> n) | (temp << (8 - n)));
-    }
-
     public static String byteToStr(byte b) {
         String str = "";
         for (int i = 7; i >= 0; i--) {
@@ -129,46 +103,48 @@ public class Convert {
         return str;
     }
 
-    /**
-     * 循环左移
-     *
-     * @param sourceBytes
-     * @param n
-     * @return
-     */
+    public static String bytesToStr(byte[] bytes) {
+        String str = "";
+        for (byte b :
+                bytes) {
+            str += byteToStr(b);
+        }
+        return str;
+    }
+
+    public static byte[] strToBytes(String string) {
+
+
+        int count = string.length() / 8;
+        byte[] res = new byte[count];
+        //System.out.println(string.length());
+        // for (int i = count-1; i >= 0; --i) {
+        for (int i = 0; i < count; i++) {
+            String substring;
+            int check = string.length() - (i + 1) * 8;
+            if (check >= 0) {
+                substring = string.substring(check, check + 8);
+                //  System.out.println(substring + "-" + i + "-" + check);
+            } else substring = "";
+            // System.out.println(substring.length());
+            for (int j = 7; j >= 0; j--) {
+                if (substring.charAt(j) == '1') res[count - i - 1] += 1 << (8 - j - 1);
+            }
+            ///res[i] = Byte.valueOf(substring);
+            //String substring = string.substring(string.length() - 8 * (count + 1) < 0 ? 0 : string.length() - (count + 1) * 8, 8);
+
+        }
+
+        return res;
+    }
+
     public static byte[] rotateLeft(byte[] sourceBytes, int n) {
-        byte[] res = new byte[sourceBytes.length];
-        byte removed = 0x0;
-        for (int index = sourceBytes.length - 1; index >= 0; --index) {
-            int current = sourceBytes[index];
-            //System.out.println("source:" + byteToStr((byte) current));
-            res[index] = (byte) ((current << n) | removed);
-           // System.out.println("current:" + byteToStr(res[index]));
-            removed = (byte) ((current & 0xff) >>> (8 - n));
-           // System.out.println("removed:" + byteToStr(removed));
-        }
-        res[sourceBytes.length - 1] |= removed;
-        return res;
-    }
+        String s = bytesToStr(sourceBytes);
+        while(n>=s.length()) n-=s.length();
+        String subhead = s.substring(0, n);
+        String subbody = s.substring(n);
+        return strToBytes(subbody + subhead);
 
-    public static byte[] rotateRight(byte[] sourceBytes, int n) {
-        byte[] out = new byte[sourceBytes.length];
-        for (int i = 0; i < sourceBytes.length; i++) {
-            out[i] = rotateRight(sourceBytes[i], n);
-        }
-        return out;
-    }
-
-    public static byte[] and(byte[] a, byte[] b) {
-        int maxSize = (a.length > b.length) ? a.length : b.length;
-        byte[] res = new byte[maxSize];
-        for (int count = 1; maxSize - count > 0; ++count) {
-            byte tempa = (a.length - count < 0) ? 0 : a[a.length - count];
-            byte tempb = (b.length - count < 0) ? 0 : b[b.length - count];
-            res[maxSize - count] = (byte) ((tempa & tempb) & 0xff);
-        }
-
-        return res;
     }
 
     public static byte[] or(byte[] a, byte[] b) {
@@ -183,39 +159,28 @@ public class Convert {
         return res;
     }
 
-    public static byte[] xor(byte[] a, byte[] b) {
-        int maxSize = (a.length > b.length) ? a.length : b.length;
-        byte[] res = new byte[maxSize];
-        for (int count = 1; maxSize - count > 0; ++count) {
-            byte tempa = (a.length - count < 0) ? 0 : a[a.length - count];
-            byte tempb = (b.length - count < 0) ? 0 : b[b.length - count];
-            res[maxSize - count] = (byte) ((tempa ^ tempb) & 0xff);
+    public static long[] bytesToIntegers(byte[] a) {
+        if (a.length != 64) {
+            byte[] temp = new byte[64];
+            System.arraycopy(a, 0, temp, 64 - a.length, a.length);
+            a = temp;
         }
-
-        return res;
-    }
-
-    public static byte[] not(byte[] a) {
-        byte[] c = new byte[a.length];
-        for (int cout = 0; cout < a.length; cout++) {
-            c[cout] = (byte) ~a[cout];
-        }
-        return c;
-    }
-
-    public static byte[] mod32add(byte[] a, byte[] b) {
-        int maxSize = (a.length > b.length) ? a.length : b.length;
-        byte inProgress = 0;
-        byte[] res = new byte[maxSize];
-        for (int count = 1; maxSize - count > 0; ++count) {
-            byte tempa = (a.length - count < 0) ? 0 : a[a.length - count];
-            byte tempb = (b.length - count < 0) ? 0 : b[b.length - count];
-            res[maxSize - count] = (byte) ((tempa + tempb + inProgress) & 0xff);
-            inProgress = (byte) (((tempa + tempb + inProgress) >> 8) & 0xff);
+        long[] res = new long[64];
+        for (int i = 0; i < 16; i++) {
+            byte[] temp = new byte[4];
+            temp[0] = a[i * 4];
+            temp[1] = a[i * 4 + 1];
+            temp[2] = a[i * 4 + 2];
+            temp[3] = a[i * 4 + 3];
+            res[i] = Convert.byteToInteger(temp);
+            System.out.print(Convert.Bytes2HexString(temp) + " ");
         }
 
         return res;
     }
 
 
+    public static long rotateLeft(long numver, int count) {
+        return byteToInteger(Convert.rotateLeft(integerToByte(numver), count));
+    }
 }
