@@ -8,7 +8,7 @@ import java.util.List;
  * Basic convert class for sm2
  * Created by getbl on 2016/6/18.
  */
-class Convert {
+public class Convert {
 
 
     private static char[] hex = new char[]{'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
@@ -19,7 +19,7 @@ class Convert {
         return (c - '0') & 0x0f;
     }
 
-    static String Bytes2HexString(byte[] b) {
+    public static String Bytes2HexString(byte[] b) {
         char[] buff = new char[2 * b.length];
         for (int i = 0; i < b.length; i++) {
             buff[2 * i] = hex[(b[i] >> 4) & 0x0f];
@@ -28,7 +28,7 @@ class Convert {
         return new String(buff);
     }
 
-    static byte[] HexString2Bytes(String hexstr) {
+    public static byte[] HexString2Bytes(String hexstr) {
         byte[] b = new byte[hexstr.length() / 2];
         int j = 0;
         for (int i = 0; i < b.length; i++) {
@@ -39,14 +39,14 @@ class Convert {
         return b;
     }
 
-    static byte[] integerToByte(long num, int length) {
+    public static byte[] integerToByte(long num, int length) {
         byte[] res = new byte[length / 8];
         //TODO:fuck this
         byte[] src = integerToByte(num);
         return or(res, src);
     }
 
-    static byte[] integerToByte(long num) {
+    public static byte[] integerToByte(long num) {
         //7-->00000111
         //255--->11111111
         //256--->00000001 00000000
@@ -74,7 +74,7 @@ class Convert {
         return bytes;
     }
 
-    static long byteToInteger(byte[] b) {
+    public static long byteToInteger(byte[] b) {
         int num = b.length;
         if (num < 4) {
             byte[] temp = new byte[4];
@@ -93,7 +93,7 @@ class Convert {
         return res;
     }
 
-    private static String byteToStr(byte b) {
+    public static String byteToStr(byte b) {
         String str = "";
         for (int i = 7; i >= 0; i--) {
             if ((b >> i & 0x1) == 1) str += "1";
@@ -103,7 +103,7 @@ class Convert {
         return str;
     }
 
-    static String bytesToStr(byte[] bytes) {
+    public static String bytesToStr(byte[] bytes) {
         String str = "";
         for (byte b :
                 bytes) {
@@ -112,7 +112,7 @@ class Convert {
         return str;
     }
 
-    private static byte[] strToBytes(String string) {
+    public static byte[] strToBytes(String string) {
 
 
         int count = string.length() / 8;
@@ -138,7 +138,7 @@ class Convert {
         return res;
     }
 
-    static byte[] rotateLeft(byte[] sourceBytes, int n) {
+    public static byte[] rotateLeft(byte[] sourceBytes, int n) {
         String s = bytesToStr(sourceBytes);
         while(n>=s.length()) n-=s.length();
         String subhead = s.substring(0, n);
@@ -147,7 +147,7 @@ class Convert {
 
     }
 
-    private static byte[] or(byte[] a, byte[] b) {
+    public static byte[] or(byte[] a, byte[] b) {
         int maxSize = (a.length > b.length) ? a.length : b.length;
         byte[] res = new byte[maxSize];
         for (int count = 1; maxSize - count > 0; ++count) {
@@ -159,7 +159,7 @@ class Convert {
         return res;
     }
 
-    static long[] bytesToIntegers(byte[] a) {
+    public static long[] bytesToIntegers(byte[] a) {
         if (a.length != 64) {
             byte[] temp = new byte[64];
             System.arraycopy(a, 0, temp, 64 - a.length, a.length);
@@ -179,7 +179,8 @@ class Convert {
         return res;
     }
 
-    static long rotateLeft(long numver, int count) {
+
+    public static long rotateLeft(long numver, int count) {
         return byteToInteger(Convert.rotateLeft(integerToByte(numver), count));
     }
 }
